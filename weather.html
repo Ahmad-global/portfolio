@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Weather App - Ahmad</title>
-
 <style>
 body{
   font-family: Arial, sans-serif;
@@ -13,7 +12,6 @@ body{
   text-align:center;
   padding:40px;
 }
-
 .container{
   background:rgba(0,0,0,0.4);
   padding:30px;
@@ -22,7 +20,6 @@ body{
   margin:auto;
   box-shadow:0 8px 20px rgba(0,0,0,0.5);
 }
-
 input{
   padding:10px;
   width:70%;
@@ -30,7 +27,6 @@ input{
   border-radius:8px;
   outline:none;
 }
-
 button{
   padding:10px 15px;
   border:none;
@@ -40,22 +36,18 @@ button{
   cursor:pointer;
   transition:0.3s;
 }
-
 button:hover{
   background:#ffaa00;
 }
-
 .weather-info{
   margin-top:20px;
   display:none;
 }
-
 .weather-info img{
   width:80px;
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -77,31 +69,33 @@ button:hover{
 <script>
 async function getWeather(){
   const city = document.getElementById("cityInput").value;
-
   if(city === ""){
     alert("Please enter a city name");
     return;
   }
 
-  const url = `https://wttr.in/${city}?format=j1`;
+  const apiKey = "cbf8d7655f9dedc243c8f2ee836bc003";
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
   try{
     const response = await fetch(url);
     const data = await response.json();
 
-    const weather = data.current_condition[0];
+    if(data.cod !== 200){
+      alert("City not found");
+      return;
+    }
 
     document.getElementById("weatherBox").style.display="block";
-    document.getElementById("cityName").innerText = city;
-    document.getElementById("description").innerText = weather.weatherDesc[0].value;
-    document.getElementById("temp").innerText = weather.temp_C;
-    document.getElementById("humidity").innerText = weather.humidity;
-    document.getElementById("wind").innerText = weather.windspeedKmph;
-
-    document.getElementById("icon").src = weather.weatherIconUrl[0].value;
+    document.getElementById("cityName").innerText = data.name + ", " + data.sys.country;
+    document.getElementById("description").innerText = data.weather[0].description;
+    document.getElementById("temp").innerText = data.main.temp;
+    document.getElementById("humidity").innerText = data.main.humidity;
+    document.getElementById("wind").innerText = data.wind.speed;
+    document.getElementById("icon").src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
   }catch(error){
-    alert("City not found or connection error");
+    alert("Error fetching data");
     console.log(error);
   }
 }
